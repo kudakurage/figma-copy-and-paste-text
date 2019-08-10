@@ -1,9 +1,9 @@
 <textarea></textarea>
 <script>
     onmessage = event => {
-        if(event.data.pluginMessage.texts){
+        if(event.data.pluginMessage.copiedText){
             var textarea = document.getElementsByTagName("textarea")[0];
-            textarea.value = event.data.pluginMessage.texts;
+            textarea.value = event.data.pluginMessage.copiedText;
             textarea.select();
             document.execCommand("copy");
         }
