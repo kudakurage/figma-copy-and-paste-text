@@ -1,0 +1,19 @@
+<textarea></textarea>
+<script>
+    onmessage = event => {
+        if(event.data.pluginMessage.texts){
+            var textarea = document.getElementsByTagName("textarea")[0];
+            textarea.value = event.data.pluginMessage.texts;
+            textarea.select();
+            document.execCommand("copy");
+        }
+
+        if(event.data.pluginMessage.paste){
+            var textarea = document.getElementsByTagName("textarea")[0];
+            textarea.focus();
+            document.execCommand("paste");
+            parent.postMessage({ pluginMessage: { pasteTextValue: textarea.value } }, '*');
+        }
+    }
+    parent.postMessage({ pluginMessage: { quit: true } }, '*');
+</script>

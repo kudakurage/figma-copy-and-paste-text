@@ -1,0 +1,11 @@
+{
+  "name": "Copy and Paste Text",
+  "id": "738916553283875028",
+  "api": "1.0.0",
+  "main": "code.js",
+  "ui": "ui.html",
+  "menu": [
+    {"name": "Copy Text", "command": "copyText"},
+    {"name": "Paste Text", "command": "pasteText"}
+  ]
+}
