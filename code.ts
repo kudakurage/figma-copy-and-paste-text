@@ -1,6 +1,5 @@
 figma.showUI(__html__);
 figma.ui.hide();
-
 var textObjectLength = 0;
 
 function extractTexts(nodeObjectsArray){
@@ -30,7 +29,19 @@ function pasteFunction(nodeObjectsArray, copiedText){
 }
 
 async function loadFont(selectedItem, pasteValue) {
-  await figma.loadFontAsync({ family: selectedItem.fontName.family, style: selectedItem.fontName.style });
+  let selectedItemFontName = selectedItem.getRangeFontName(0, 1);
+  await figma.loadFontAsync({ family: selectedItemFontName.family, style: selectedItemFontName.style });
+  if(selectedItem.fontName == figma.mixed){
+    selectedItem.setRangeFontName(0, selectedItem.characters.length, selectedItemFontName);
+  }
+  selectedItem.setRangeFontSize(0, selectedItem.characters.length, selectedItem.getRangeFontSize(0, 1));
+  selectedItem.setRangeTextCase(0, selectedItem.characters.length, selectedItem.getRangeTextCase(0, 1));
+  selectedItem.setRangeTextDecoration(0, selectedItem.characters.length, selectedItem.getRangeTextDecoration(0, 1));
+  selectedItem.setRangeLetterSpacing(0, selectedItem.characters.length, selectedItem.getRangeLetterSpacing(0, 1));
+  selectedItem.setRangeLineHeight(0, selectedItem.characters.length, selectedItem.getRangeLineHeight(0, 1));
+  selectedItem.setRangeFills(0, selectedItem.characters.length, selectedItem.getRangeFills(0, 1));
+  selectedItem.setRangeTextStyleId(0, selectedItem.characters.length, selectedItem.getRangeTextStyleId(0, 1));
+  selectedItem.setRangeFillStyleId(0, selectedItem.characters.length, selectedItem.getRangeFillStyleId(0, 1));
   selectedItem.characters = pasteValue;
 }
 
@@ -39,24 +50,19 @@ function main(){
     let selectedItems = figma.currentPage.selection;
     let copiedText = extractTexts(selectedItems);
     figma.ui.postMessage({ copiedText });
-
-    figma.ui.onmessage = message => {
-      if (message.quit) {
-        figma.closePlugin();
-      }
-    }
   }
-  
-  if (figma.command == 'pasteText'){
-    var selectedItems = figma.currentPage.selection;
-    var textObjectLength = 0;
-    figma.ui.postMessage({ paste : true });
 
-    figma.ui.onmessage = message => {
-      if(message.pasteTextValue){
-        pasteFunction(selectedItems, message.pasteTextValue);
-        figma.closePlugin();
-      }
+  if (figma.command == 'pasteText'){
+    figma.ui.postMessage({ paste : true });
+  }
+
+  figma.ui.onmessage = message => {
+    if (message.quit) {
+      figma.closePlugin();
+    }
+    if(message.pasteTextValue){
+      pasteFunction(figma.currentPage.selection, message.pasteTextValue);
+      figma.closePlugin();
     }
   }
 }

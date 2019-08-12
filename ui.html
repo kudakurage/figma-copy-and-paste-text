@@ -6,6 +6,7 @@
             textarea.value = event.data.pluginMessage.copiedText;
             textarea.select();
             document.execCommand("copy");
+            parent.postMessage({ pluginMessage: { quit: true } }, '*');
         }
 
         if(event.data.pluginMessage.paste){
@@ -15,5 +16,4 @@
             parent.postMessage({ pluginMessage: { pasteTextValue: textarea.value } }, '*');
         }
     }
-    parent.postMessage({ pluginMessage: { quit: true } }, '*');
 </script>
