@@ -37,6 +37,9 @@ function pasteFunction(nodeObjectsArray, copiedText) {
                 pasteFunction(nodeObjectsArray[i].children, copiedText);
             }
         }
+        if (textObjectLength == 0) {
+            createNewText(copiedText);
+        }
     }
     else {
         createNewText(copiedText);
@@ -52,6 +55,7 @@ function createNewText(characters) {
         newTextNode.x = figma.viewport.center.x - (newTextNode.width / 2);
         newTextNode.y = figma.viewport.center.y - (newTextNode.height / 2);
         figma.currentPage.appendChild(newTextNode);
+        figma.currentPage.selection = [newTextNode];
         return newTextNode;
     });
 }
