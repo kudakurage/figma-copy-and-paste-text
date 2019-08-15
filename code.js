@@ -8,6 +8,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 figma.showUI(__html__);
 figma.ui.hide();
+const defaultFontSize = 16;
+const defaultFontName = { family: 'Roboto', style: 'Regular' };
 var textObjectLength = 0;
 function extractTexts(nodeObjectsArray) {
     let texts = '';
@@ -26,16 +28,34 @@ function extractTexts(nodeObjectsArray) {
     return texts;
 }
 function pasteFunction(nodeObjectsArray, copiedText) {
-    for (let i = 0; i < nodeObjectsArray.length; i++) {
-        if (nodeObjectsArray[i].type == 'TEXT') {
-            loadFont(nodeObjectsArray[i], copiedText);
-        }
-        else if (nodeObjectsArray[i].type == 'GROUP' || nodeObjectsArray[i].type == 'FRAME' || nodeObjectsArray[i].type == 'COMPONENT' || nodeObjectsArray[i].type == 'INSTANCE') {
-            pasteFunction(nodeObjectsArray[i].children, copiedText);
+    if (nodeObjectsArray.length) {
+        for (let i = 0; i < nodeObjectsArray.length; i++) {
+            if (nodeObjectsArray[i].type == 'TEXT') {
+                updateText(nodeObjectsArray[i], copiedText);
+            }
+            else if (nodeObjectsArray[i].type == 'GROUP' || nodeObjectsArray[i].type == 'FRAME' || nodeObjectsArray[i].type == 'COMPONENT' || nodeObjectsArray[i].type == 'INSTANCE') {
+                pasteFunction(nodeObjectsArray[i].children, copiedText);
+            }
         }
     }
+    else {
+        createNewText(copiedText);
+    }
 }
-function loadFont(selectedItem, pasteValue) {
+function createNewText(characters) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield figma.loadFontAsync({ family: defaultFontName.family, style: defaultFontName.style });
+        const newTextNode = figma.createText();
+        newTextNode.fontSize = defaultFontSize;
+        newTextNode.fontName = defaultFontName;
+        newTextNode.characters = characters;
+        newTextNode.x = figma.viewport.center.x - (newTextNode.width / 2);
+        newTextNode.y = figma.viewport.center.y - (newTextNode.height / 2);
+        figma.currentPage.appendChild(newTextNode);
+        return newTextNode;
+    });
+}
+function updateText(selectedItem, pasteValue) {
     return __awaiter(this, void 0, void 0, function* () {
         let selectedItemFontName = selectedItem.getRangeFontName(0, 1);
         yield figma.loadFontAsync({ family: selectedItemFontName.family, style: selectedItemFontName.style });
@@ -56,6 +76,9 @@ function loadFont(selectedItem, pasteValue) {
 function main() {
     if (figma.command == 'copyText') {
         let selectedItems = figma.currentPage.selection;
+        if (selectedItems.length == 0) {
+            return figma.closePlugin();
+        }
         let copiedText = extractTexts(selectedItems);
         figma.ui.postMessage({ copiedText });
     }
