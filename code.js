@@ -39,23 +39,28 @@ function pasteFunction(nodeObjectsArray, copiedText) {
             }
         }
         if (textObjectLength == 0) {
-            console.log(textObjectLength);
-            createNewText(copiedText);
+            createNewText(copiedText, nodeObjectsArray[0]);
         }
     }
     else {
-        createNewText(copiedText);
+        createNewText(copiedText, null);
     }
 }
-function createNewText(characters) {
+function createNewText(characters, nodeObject) {
     return __awaiter(this, void 0, void 0, function* () {
         yield figma.loadFontAsync({ family: defaultFontName.family, style: defaultFontName.style });
         const newTextNode = figma.createText();
         newTextNode.fontSize = defaultFontSize;
         newTextNode.fontName = defaultFontName;
         newTextNode.characters = characters;
-        newTextNode.x = figma.viewport.center.x - (newTextNode.width / 2);
-        newTextNode.y = figma.viewport.center.y - (newTextNode.height / 2);
+        if (nodeObject) {
+            newTextNode.x = nodeObject.x + (nodeObject.width / 2) - (newTextNode.width / 2);
+            newTextNode.y = nodeObject.y + (nodeObject.height / 2) - (newTextNode.height / 2);
+        }
+        else {
+            newTextNode.x = figma.viewport.center.x - (newTextNode.width / 2);
+            newTextNode.y = figma.viewport.center.y - (newTextNode.height / 2);
+        }
         figma.currentPage.appendChild(newTextNode);
         figma.currentPage.selection = [newTextNode];
         return newTextNode;
@@ -86,7 +91,12 @@ function main() {
             return figma.closePlugin();
         }
         let copiedText = extractTexts(selectedItems);
-        figma.ui.postMessage({ copiedText });
+        if (copiedText) {
+            figma.ui.postMessage({ copiedText });
+        }
+        else {
+            return figma.closePlugin();
+        }
     }
     if (figma.command == 'pasteText') {
         figma.ui.postMessage({ paste: true });
