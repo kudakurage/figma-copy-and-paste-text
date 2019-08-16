@@ -32,12 +32,14 @@ function pasteFunction(nodeObjectsArray, copiedText) {
         for (let i = 0; i < nodeObjectsArray.length; i++) {
             if (nodeObjectsArray[i].type == 'TEXT') {
                 updateText(nodeObjectsArray[i], copiedText);
+                textObjectLength++;
             }
             else if (nodeObjectsArray[i].type == 'GROUP' || nodeObjectsArray[i].type == 'FRAME' || nodeObjectsArray[i].type == 'COMPONENT' || nodeObjectsArray[i].type == 'INSTANCE') {
                 pasteFunction(nodeObjectsArray[i].children, copiedText);
             }
         }
         if (textObjectLength == 0) {
+            console.log(textObjectLength);
             createNewText(copiedText);
         }
     }
