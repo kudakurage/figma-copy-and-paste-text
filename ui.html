@@ -11,10 +11,11 @@
         }
 
         if(event.data.pluginMessage.paste){
-            var textarea = document.getElementsByTagName("textarea")[0];
+            let textarea = document.getElementsByTagName("textarea")[0];
             textarea.focus();
             document.execCommand("paste");
-            parent.postMessage({ pluginMessage: { pasteTextValue: textarea.value } }, '*');
+            let pasteText = textarea.value ? textarea.value : null
+            parent.postMessage({ pluginMessage: { pasteTextValue: pasteText } }, '*');
         }
     }
 </script>

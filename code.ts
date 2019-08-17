@@ -99,7 +99,9 @@ function main(){
     if (message.quit) {
       figma.closePlugin('Copied: ' + message.text)
     }
-    if(message.pasteTextValue){
+    if(message.pasteTextValue == null){
+      figma.closePlugin('No text to paste.')
+    }else{
       let num = pasteFunction(figma.currentPage.selection, message.pasteTextValue)
       figma.closePlugin('Pasted text to ' + num + ' object' + ((num > 1) ? 's':''))
     }
