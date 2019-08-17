@@ -33,10 +33,13 @@ function pasteFunction(nodeObjectsArray, copiedText){
     }
     if (textObjectLength == 0){
       createNewText(copiedText, nodeObjectsArray[0])
+      textObjectLength++
     }
   }else{
     createNewText(copiedText, null)
+    textObjectLength++
   }
+  return textObjectLength
 }
 
 async function createNewText(characters, nodeObject) {
@@ -78,13 +81,13 @@ function main(){
   if (figma.command == 'copyText'){
     let selectedItems = figma.currentPage.selection
     if (selectedItems.length == 0){
-      return figma.closePlugin()
+      return figma.closePlugin('No object selected.')
     }
     let copiedText = extractTexts(selectedItems)
     if (copiedText){
       figma.ui.postMessage({ copiedText })
     } else {
-      return figma.closePlugin()
+      return figma.closePlugin('No text object selected.')
     }
   }
 
@@ -94,11 +97,11 @@ function main(){
 
   figma.ui.onmessage = message => {
     if (message.quit) {
-      figma.closePlugin()
+      figma.closePlugin('Copied: ' + message.text)
     }
     if(message.pasteTextValue){
-      pasteFunction(figma.currentPage.selection, message.pasteTextValue)
-      figma.closePlugin()
+      let num = pasteFunction(figma.currentPage.selection, message.pasteTextValue)
+      figma.closePlugin('Pasted text to ' + num + ' object' + ((num > 1) ? 's':''))
     }
   }
 }
