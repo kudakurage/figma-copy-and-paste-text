@@ -1,5 +1,67 @@
+<style>
+    body {
+        background: #222;
+        margin: 0;
+        padding: 20px;
+        font-family: sans-serif;
+        font-size: 14px;
+        color: #fff;
+    }
+    textarea {
+        height:1px;
+        border:0;
+        margin:0;
+        padding:0;
+        opacity:0;
+    }
+    select, input {
+        background: #333;
+        border: 1px solid #444;
+        border-radius: 3px;
+        color: #fff;
+        font-size: 16px;
+        line-height: 30px;
+        height: 30px;
+        width: 110px;
+        text-align: center;
+    }
+    .copyright {
+        font-size: 11px;
+        color: #666;
+        margin-top: 20px;
+        text-align: center;
+    }
+    .copyright a {
+        color: #666;
+        text-decoration: none;
+    }
+    .copyright a:hover {
+        color: #999;
+    }
+    .setting-item {
+        padding-bottom: 20px;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #333;
+        text-align: right;
+    }
+</style>
+<div class="setting-item">
+    Copy selected multiple texts with:
+    <select id="settings-data-delimiter" onchange="setDelimiterSetting(this);">
+        <option value="lineBreak">Line Break</option>
+        <option value="space">Space</option>
+        <option value="none">None</option>
+    </select>
+</div>
+<div class="setting-item">
+    Font size of the new text object (px):
+    <input type="number" id="settings-data-font-size" value="16" min="6" onchange="setFontSizeSetting(this)" onblur="blurFontSizeSetting(this)">
+</div>
+<div class="copyright"><a href="https://www.spinners.work/" target="_blank">Copyright © 2019 Spinners Inc.</a></div>
 <textarea></textarea>
 <script>
+    var settingsData = {}
+
     onmessage = event => {
         if(event.data.pluginMessage.copiedText){
             let textarea = document.getElementsByTagName("textarea")[0];
@@ -17,5 +79,37 @@
             let pasteText = textarea.value ? textarea.value : null
             parent.postMessage({ pluginMessage: { pasteTextValue: pasteText } }, '*');
         }
+
+        if(event.data.pluginMessage.settings){
+            settingsData = event.data.pluginMessage.data
+            settingsInit()
+        }
+    }
+
+    function setDelimiterSetting(object){
+        settingsData.delimiter = object.options[object.selectedIndex].value
+        parent.postMessage({ pluginMessage: { updatedSettingsData: settingsData } }, '*');
+    }
+
+    function setFontSizeSetting(object){
+        settingsData.fontSize = (object.value < 6) ? 6 : object.value
+        parent.postMessage({ pluginMessage: { updatedSettingsData: settingsData } }, '*');
+    }
+
+    function blurFontSizeSetting(object){
+        object.value = (object.value < 6) ? 6 : object.value
+    }
+
+    function settingsInit(){
+        let delimiterSelect = document.getElementById('settings-data-delimiter')
+        for(i=0; delimiterSelect.length > i; i++){
+            if(delimiterSelect.options[i].value == settingsData.delimiter){
+                delimiterSelect.options[i].selected = true;
+                break;
+            }
+        }
+
+        let fontSizeInput = document.getElementById('settings-data-font-size')
+        fontSizeInput.value = settingsData.fontSize
     }
 </script>

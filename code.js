@@ -10,13 +10,19 @@ figma.showUI(__html__);
 figma.ui.hide();
 const defaultFontSize = 16;
 const defaultFontName = { family: 'Roboto', style: 'Regular' };
+const defaultDelimiter = 'lineBreak';
+const delimiter = { lineBreak: '\n', space: ' ', none: '' };
+const storageKey = 'settingsData';
+const defaultSettingsData = { delimiter: defaultDelimiter, fontSize: defaultFontSize };
+var settingsData = JSON.parse(JSON.stringify(defaultSettingsData));
 var textObjectLength = 0;
 function extractTexts(nodeObjectsArray) {
     let texts = '';
     for (let i = 0; i < nodeObjectsArray.length; i++) {
         if (nodeObjectsArray[i].type == 'TEXT') {
             if (textObjectLength > 0) {
-                texts += '\n';
+                let delimiterKey = settingsData.delimiter ? settingsData.delimiter : defaultSettingsData.delimiter;
+                texts += delimiter[delimiterKey];
             }
             texts += nodeObjectsArray[i].characters;
             textObjectLength++;
@@ -53,7 +59,7 @@ function createNewText(characters, nodeObject) {
     return __awaiter(this, void 0, void 0, function* () {
         yield figma.loadFontAsync({ family: defaultFontName.family, style: defaultFontName.style });
         const newTextNode = figma.createText();
-        newTextNode.fontSize = defaultFontSize;
+        newTextNode.fontSize = Number(settingsData.fontSize);
         newTextNode.fontName = defaultFontName;
         newTextNode.characters = characters;
         if (nodeObject) {
@@ -87,6 +93,28 @@ function updateText(selectedItem, pasteValue) {
         selectedItem.characters = pasteValue;
     });
 }
+function truncate(str, len) {
+    return str.length <= len ? str : (str.substr(0, len) + "…");
+}
+function init() {
+    figma.clientStorage.getAsync(storageKey).then(result => {
+        if (result) {
+            Object.keys(defaultSettingsData).forEach((key) => {
+                let data = JSON.parse(result);
+                settingsData[key] = data[key];
+                if (!settingsData[key]) {
+                    settingsData[key] = defaultSettingsData[key];
+                }
+            });
+            figma.clientStorage.setAsync(storageKey, JSON.stringify(settingsData));
+        }
+        else {
+            figma.clientStorage.setAsync(storageKey, JSON.stringify(defaultSettingsData));
+            settingsData = defaultSettingsData;
+        }
+        main();
+    });
+}
 function main() {
     if (figma.command == 'copyText') {
         let selectedItems = figma.currentPage.selection;
@@ -95,7 +123,7 @@ function main() {
         }
         let copiedText = extractTexts(selectedItems);
         if (copiedText) {
-            figma.ui.postMessage({ copiedText });
+            figma.ui.postMessage({ copiedText: copiedText });
         }
         else {
             return figma.closePlugin('No text object selected.');
@@ -104,11 +132,19 @@ function main() {
     if (figma.command == 'pasteText') {
         figma.ui.postMessage({ paste: true });
     }
+    if (figma.command == 'settingPlugin') {
+        figma.ui.postMessage({ settings: true, data: settingsData });
+        figma.ui.resize(380, 200);
+        figma.ui.show();
+    }
     figma.ui.onmessage = message => {
         if (message.quit) {
-            figma.closePlugin('Copied: ' + message.text);
+            figma.closePlugin('Copied: ' + truncate(message.text, 100));
         }
-        if (message.pasteTextValue == null) {
+        else if (message.updatedSettingsData) {
+            figma.clientStorage.setAsync(storageKey, JSON.stringify(message.updatedSettingsData));
+        }
+        else if (message.pasteTextValue == null) {
             figma.closePlugin('No text to paste.');
         }
         else {
@@ -117,4 +153,4 @@ function main() {
         }
     };
 }
-main();
+init();

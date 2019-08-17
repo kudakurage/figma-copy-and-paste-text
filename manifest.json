@@ -6,6 +6,7 @@
   "ui": "ui.html",
   "menu": [
     {"name": "Copy Text", "command": "copyText"},
-    {"name": "Paste Text", "command": "pasteText"}
+    {"name": "Paste Text", "command": "pasteText"},
+    {"name": "Settings", "command": "settingPlugin"}
   ]
 }
