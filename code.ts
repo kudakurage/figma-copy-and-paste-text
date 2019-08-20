@@ -68,18 +68,27 @@ async function createNewText(characters, nodeObject) {
 
 async function updateText(selectedItem, pasteValue) {
   let selectedItemFontName = selectedItem.getRangeFontName(0, 1)
+  let textStyleId = selectedItem.getRangeTextStyleId(0, 1)
   await figma.loadFontAsync({ family: selectedItemFontName.family, style: selectedItemFontName.style })
   if(selectedItem.fontName == figma.mixed){
     selectedItem.setRangeFontName(0, selectedItem.characters.length, selectedItemFontName)
   }
-  selectedItem.setRangeFontSize(0, selectedItem.characters.length, selectedItem.getRangeFontSize(0, 1))
-  selectedItem.setRangeTextCase(0, selectedItem.characters.length, selectedItem.getRangeTextCase(0, 1))
-  selectedItem.setRangeTextDecoration(0, selectedItem.characters.length, selectedItem.getRangeTextDecoration(0, 1))
-  selectedItem.setRangeLetterSpacing(0, selectedItem.characters.length, selectedItem.getRangeLetterSpacing(0, 1))
-  selectedItem.setRangeLineHeight(0, selectedItem.characters.length, selectedItem.getRangeLineHeight(0, 1))
-  selectedItem.setRangeFills(0, selectedItem.characters.length, selectedItem.getRangeFills(0, 1))
-  selectedItem.setRangeTextStyleId(0, selectedItem.characters.length, selectedItem.getRangeTextStyleId(0, 1))
-  selectedItem.setRangeFillStyleId(0, selectedItem.characters.length, selectedItem.getRangeFillStyleId(0, 1))
+
+  if(textStyleId){
+    selectedItem.setRangeTextStyleId(0, selectedItem.characters.length, textStyleId)
+  }else{
+    selectedItem.setRangeFontSize(0, selectedItem.characters.length, selectedItem.getRangeFontSize(0, 1))
+    selectedItem.setRangeTextCase(0, selectedItem.characters.length, selectedItem.getRangeTextCase(0, 1))
+    selectedItem.setRangeTextDecoration(0, selectedItem.characters.length, selectedItem.getRangeTextDecoration(0, 1))
+    selectedItem.setRangeLetterSpacing(0, selectedItem.characters.length, selectedItem.getRangeLetterSpacing(0, 1))
+    selectedItem.setRangeLineHeight(0, selectedItem.characters.length, selectedItem.getRangeLineHeight(0, 1))
+  }
+
+  if(selectedItem.getRangeFillStyleId(0, 1)){
+    selectedItem.setRangeFillStyleId(0, selectedItem.characters.length, selectedItem.getRangeFillStyleId(0, 1))
+  }else{
+    selectedItem.setRangeFills(0, selectedItem.characters.length, selectedItem.getRangeFills(0, 1))
+  }
   selectedItem.characters = pasteValue
 }
 
