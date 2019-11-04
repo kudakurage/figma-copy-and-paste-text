@@ -1,5 +1,5 @@
 # Figma Plugin - Copy and Paste Text(s)
-Figma plugin to copy &amp; paste only text from selected layers.
+Figma plugin to copy &amp; paste plain text from selected layers.
 
 # Usage
 ## Copy Text
