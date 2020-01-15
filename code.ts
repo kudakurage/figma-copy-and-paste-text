@@ -1,5 +1,5 @@
 figma.showUI(__html__)
-figma.ui.hide()
+// figma.ui.hide()
 
 const defaultFontSize = 16
 const defaultFontName = { family: 'Roboto', style: 'Regular' }

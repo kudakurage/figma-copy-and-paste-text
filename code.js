@@ -7,7 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 figma.showUI(__html__);
-figma.ui.hide();
+// figma.ui.hide()
 const defaultFontSize = 16;
 const defaultFontName = { family: 'Roboto', style: 'Regular' };
 const defaultDelimiter = 'lineBreak';
