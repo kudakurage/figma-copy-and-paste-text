@@ -7,6 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 figma.showUI(__html__);
+figma.ui.resize(0, 0);
 // figma.ui.hide()
 const defaultFontSize = 16;
 const defaultFontName = { family: 'Roboto', style: 'Regular' };

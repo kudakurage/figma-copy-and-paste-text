@@ -2,10 +2,13 @@
     body {
         background: #fff;
         margin: 0;
-        padding: 20px;
-        font-family: sans-serif;
+        padding: 0;
+        font-family: system-ui;
         font-size: 14px;
         color: #222;
+    }
+    #settings {
+        padding: 20px;
     }
     textarea {
         height:1px;
@@ -44,21 +47,28 @@
         border-bottom: 1px solid #ddd;
         text-align: right;
     }
+    .hidden {
+        display: none;
+    }
 </style>
-<div class="setting-item">
-    Copy selected multiple texts with:
-    <select id="settings-data-delimiter" onchange="setDelimiterSetting(this);">
-        <option value="lineBreak">Line Break</option>
-        <option value="space">Space</option>
-        <option value="none">None</option>
-    </select>
+<div id="settings" class="hidden">
+    <div class="setting-item">
+        Copy selected multiple texts with:
+        <select id="settings-data-delimiter" onchange="setDelimiterSetting(this);">
+            <option value="lineBreak">Line Break</option>
+            <option value="space">Space</option>
+            <option value="none">None</option>
+        </select>
+    </div>
+    <div class="setting-item">
+        Font size of the new text object (px):
+        <input type="number" id="settings-data-font-size" value="16" min="6" onchange="setFontSizeSetting(this)" onblur="blurFontSizeSetting(this)">
+    </div>
+    <div class="copyright"><a href="https://www.spinners.work/" target="_blank">Copyright © 2019 Spinners Inc.</a></div>
 </div>
-<div class="setting-item">
-    Font size of the new text object (px):
-    <input type="number" id="settings-data-font-size" value="16" min="6" onchange="setFontSizeSetting(this)" onblur="blurFontSizeSetting(this)">
+<div id="loading">
+    <textarea></textarea>
 </div>
-<div class="copyright"><a href="https://www.spinners.work/" target="_blank">Copyright © 2019 Spinners Inc.</a></div>
-<textarea></textarea>
 <script>
     var settingsData = {}
 
@@ -67,7 +77,7 @@
             let textarea = document.getElementsByTagName("textarea")[0];
             let copiedText = event.data.pluginMessage.copiedText;
             textarea.value = copiedText;
-            textarea.select();
+            textarea.select()
             document.execCommand("copy");
             parent.postMessage({ pluginMessage: { quit: true, text: copiedText } }, '*');
         }
@@ -102,6 +112,8 @@
 
     function settingsInit(){
         let delimiterSelect = document.getElementById('settings-data-delimiter')
+        let settingsElements = document.getElementById('settings')
+        settingsElements.classList.remove("hidden")
         for(i=0; delimiterSelect.length > i; i++){
             if(delimiterSelect.options[i].value == settingsData.delimiter){
                 delimiterSelect.options[i].selected = true;

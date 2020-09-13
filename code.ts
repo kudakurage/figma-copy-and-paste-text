@@ -1,4 +1,5 @@
 figma.showUI(__html__)
+figma.ui.resize(0, 0)
 // figma.ui.hide()
 
 const defaultFontSize = 16
@@ -150,7 +151,6 @@ function main(){
       let num = pasteFunction(figma.currentPage.selection, message.pasteTextValue)
       figma.closePlugin('Pasted text to ' + num + ' object' + ((num > 1) ? 's':''))
     }
-    
   }
 }
 
