@@ -4,9 +4,22 @@
   "api": "1.0.0",
   "main": "code.js",
   "ui": "ui.html",
+  "editorType": [
+    "figma",
+    "figjam"
+  ],
   "menu": [
-    {"name": "Copy Text", "command": "copyText"},
-    {"name": "Paste Text", "command": "pasteText"},
-    {"name": "Settings", "command": "settingPlugin"}
+    {
+      "name": "Copy Text",
+      "command": "copyText"
+    },
+    {
+      "name": "Paste Text",
+      "command": "pasteText"
+    },
+    {
+      "name": "Settings",
+      "command": "settingPlugin"
+    }
   ]
 }
