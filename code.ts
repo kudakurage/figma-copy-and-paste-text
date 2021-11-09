@@ -5,44 +5,44 @@ figma.ui.resize(0, 0)
 const defaultFontSize = 16
 const defaultFontName = { family: 'Roboto', style: 'Regular' }
 const defaultDelimiter = 'lineBreak'
-const delimiter = { lineBreak: '\n', space: ' ', none: ''}
+const delimiter = { lineBreak: '\n', space: ' ', none: '' }
 const storageKey = 'settingsData'
 const defaultSettingsData = { delimiter: defaultDelimiter, fontSize: defaultFontSize }
 var settingsData = JSON.parse(JSON.stringify(defaultSettingsData));
 var textObjectLength = 0
 
-function extractTexts(nodeObjectsArray){
+function extractTexts(nodeObjectsArray) {
   let texts = ''
   for (let i = 0; i < nodeObjectsArray.length; i++) {
-    if(nodeObjectsArray[i].type == 'TEXT'){
-      if (textObjectLength > 0){
+    if (nodeObjectsArray[i].type == 'TEXT') {
+      if (textObjectLength > 0) {
         let delimiterKey = settingsData.delimiter ? settingsData.delimiter : defaultSettingsData.delimiter
         texts += delimiter[delimiterKey]
       }
       texts += nodeObjectsArray[i].characters
       textObjectLength++
-    } else if (nodeObjectsArray[i].type == 'GROUP' || nodeObjectsArray[i].type == 'FRAME' || nodeObjectsArray[i].type == 'COMPONENT' || nodeObjectsArray[i].type == 'INSTANCE'){
+    } else if (nodeObjectsArray[i].type == 'GROUP' || nodeObjectsArray[i].type == 'FRAME' || nodeObjectsArray[i].type == 'COMPONENT' || nodeObjectsArray[i].type == 'INSTANCE') {
       texts += extractTexts(nodeObjectsArray[i].children)
     }
   }
   return texts
 }
 
-function pasteFunction(nodeObjectsArray, copiedText){
-  if (nodeObjectsArray.length){
+async function pasteFunction(nodeObjectsArray, copiedText) {
+  if (nodeObjectsArray.length) {
     for (let i = 0; i < nodeObjectsArray.length; i++) {
-      if(nodeObjectsArray[i].type == 'TEXT'){
-        updateText(nodeObjectsArray[i], copiedText)
+      if (nodeObjectsArray[i].type == 'TEXT') {
+        await updateText(nodeObjectsArray[i], copiedText)
         textObjectLength++
-      } else if (nodeObjectsArray[i].type == 'GROUP' || nodeObjectsArray[i].type == 'FRAME' || nodeObjectsArray[i].type == 'COMPONENT' || nodeObjectsArray[i].type == 'INSTANCE'){
-        pasteFunction(nodeObjectsArray[i].children, copiedText)
+      } else if (nodeObjectsArray[i].type == 'GROUP' || nodeObjectsArray[i].type == 'FRAME' || nodeObjectsArray[i].type == 'COMPONENT' || nodeObjectsArray[i].type == 'INSTANCE') {
+        await pasteFunction(nodeObjectsArray[i].children, copiedText)
       }
     }
-    if (textObjectLength == 0){
+    if (textObjectLength == 0) {
       createNewText(copiedText, nodeObjectsArray[0])
       textObjectLength++
     }
-  }else{
+  } else {
     createNewText(copiedText, null)
     textObjectLength++
   }
@@ -55,10 +55,10 @@ async function createNewText(characters, nodeObject) {
   newTextNode.fontSize = Number(settingsData.fontSize)
   newTextNode.fontName = defaultFontName
   newTextNode.characters = characters
-  if(nodeObject){
+  if (nodeObject) {
     newTextNode.x = nodeObject.x + (nodeObject.width / 2) - (newTextNode.width / 2)
     newTextNode.y = nodeObject.y + (nodeObject.height / 2) - (newTextNode.height / 2)
-  }else{
+  } else {
     newTextNode.x = figma.viewport.center.x - (newTextNode.width / 2)
     newTextNode.y = figma.viewport.center.y - (newTextNode.height / 2)
   }
@@ -71,13 +71,13 @@ async function updateText(selectedItem, pasteValue) {
   let selectedItemFontName = selectedItem.getRangeFontName(0, 1)
   let textStyleId = selectedItem.getRangeTextStyleId(0, 1)
   await figma.loadFontAsync({ family: selectedItemFontName.family, style: selectedItemFontName.style })
-  if(selectedItem.fontName == figma.mixed){
+  if (selectedItem.fontName == figma.mixed) {
     selectedItem.setRangeFontName(0, selectedItem.characters.length, selectedItemFontName)
   }
 
-  if(textStyleId){
+  if (textStyleId) {
     selectedItem.setRangeTextStyleId(0, selectedItem.characters.length, textStyleId)
-  }else{
+  } else {
     selectedItem.setRangeFontSize(0, selectedItem.characters.length, selectedItem.getRangeFontSize(0, 1))
     selectedItem.setRangeTextCase(0, selectedItem.characters.length, selectedItem.getRangeTextCase(0, 1))
     selectedItem.setRangeTextDecoration(0, selectedItem.characters.length, selectedItem.getRangeTextDecoration(0, 1))
@@ -85,25 +85,25 @@ async function updateText(selectedItem, pasteValue) {
     selectedItem.setRangeLineHeight(0, selectedItem.characters.length, selectedItem.getRangeLineHeight(0, 1))
   }
 
-  if(selectedItem.getRangeFillStyleId(0, 1)){
+  if (selectedItem.getRangeFillStyleId(0, 1)) {
     selectedItem.setRangeFillStyleId(0, selectedItem.characters.length, selectedItem.getRangeFillStyleId(0, 1))
-  }else{
+  } else {
     selectedItem.setRangeFills(0, selectedItem.characters.length, selectedItem.getRangeFills(0, 1))
   }
   selectedItem.characters = pasteValue
 }
 
-function truncate(str, len){
-  return str.length <= len ? str: (str.substr(0, len)+"…");
+function truncate(str, len) {
+  return str.length <= len ? str : (str.substr(0, len) + "…");
 }
 
-function init(){
+function init() {
   figma.clientStorage.getAsync(storageKey).then(result => {
-    if (result){
+    if (result) {
       Object.keys(defaultSettingsData).forEach((key) => {
         let data = JSON.parse(result)
         settingsData[key] = data[key]
-        if(!settingsData[key]){
+        if (!settingsData[key]) {
           settingsData[key] = defaultSettingsData[key]
         }
       });
@@ -116,40 +116,40 @@ function init(){
   })
 }
 
-function main(){
-  if (figma.command == 'copyText'){
+function main() {
+  if (figma.command == 'copyText') {
     let selectedItems = figma.currentPage.selection
-    if (selectedItems.length == 0){
+    if (selectedItems.length == 0) {
       return figma.closePlugin('No object selected.')
     }
     let copiedText = extractTexts(selectedItems)
-    if (copiedText){
-      figma.ui.postMessage({ copiedText : copiedText })
+    if (copiedText) {
+      figma.ui.postMessage({ copiedText: copiedText })
     } else {
       return figma.closePlugin('No text object selected.')
     }
   }
 
-  if (figma.command == 'pasteText'){
-    figma.ui.postMessage({ paste : true })
+  if (figma.command == 'pasteText') {
+    figma.ui.postMessage({ paste: true })
   }
 
-  if (figma.command == 'settingPlugin'){
-    figma.ui.postMessage({ settings : true, data : settingsData })
+  if (figma.command == 'settingPlugin') {
+    figma.ui.postMessage({ settings: true, data: settingsData })
     figma.ui.resize(380, 200)
     figma.ui.show()
   }
 
-  figma.ui.onmessage = message => {
+  figma.ui.onmessage = async message => {
     if (message.quit) {
       figma.closePlugin('Copied: ' + truncate(message.text, 100))
-    } else if(message.updatedSettingsData){
+    } else if (message.updatedSettingsData) {
       figma.clientStorage.setAsync(storageKey, JSON.stringify(message.updatedSettingsData))
-    } else if(message.pasteTextValue == null){
+    } else if (message.pasteTextValue == null) {
       figma.closePlugin('No text to paste.')
-    }else{
-      let num = pasteFunction(figma.currentPage.selection, message.pasteTextValue)
-      figma.closePlugin('Pasted text to ' + num + ' object' + ((num > 1) ? 's':''))
+    } else {
+      let num = await pasteFunction(figma.currentPage.selection, message.pasteTextValue)
+      figma.closePlugin('Pasted text to ' + num + ' object' + ((num > 1) ? 's' : ''))
     }
   }
 }

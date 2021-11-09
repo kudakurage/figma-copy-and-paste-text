@@ -35,26 +35,28 @@ function extractTexts(nodeObjectsArray) {
     return texts;
 }
 function pasteFunction(nodeObjectsArray, copiedText) {
-    if (nodeObjectsArray.length) {
-        for (let i = 0; i < nodeObjectsArray.length; i++) {
-            if (nodeObjectsArray[i].type == 'TEXT') {
-                updateText(nodeObjectsArray[i], copiedText);
+    return __awaiter(this, void 0, void 0, function* () {
+        if (nodeObjectsArray.length) {
+            for (let i = 0; i < nodeObjectsArray.length; i++) {
+                if (nodeObjectsArray[i].type == 'TEXT') {
+                    yield updateText(nodeObjectsArray[i], copiedText);
+                    textObjectLength++;
+                }
+                else if (nodeObjectsArray[i].type == 'GROUP' || nodeObjectsArray[i].type == 'FRAME' || nodeObjectsArray[i].type == 'COMPONENT' || nodeObjectsArray[i].type == 'INSTANCE') {
+                    yield pasteFunction(nodeObjectsArray[i].children, copiedText);
+                }
+            }
+            if (textObjectLength == 0) {
+                createNewText(copiedText, nodeObjectsArray[0]);
                 textObjectLength++;
             }
-            else if (nodeObjectsArray[i].type == 'GROUP' || nodeObjectsArray[i].type == 'FRAME' || nodeObjectsArray[i].type == 'COMPONENT' || nodeObjectsArray[i].type == 'INSTANCE') {
-                pasteFunction(nodeObjectsArray[i].children, copiedText);
-            }
         }
-        if (textObjectLength == 0) {
-            createNewText(copiedText, nodeObjectsArray[0]);
+        else {
+            createNewText(copiedText, null);
             textObjectLength++;
         }
-    }
-    else {
-        createNewText(copiedText, null);
-        textObjectLength++;
-    }
-    return textObjectLength;
+        return textObjectLength;
+    });
 }
 function createNewText(characters, nodeObject) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -147,7 +149,7 @@ function main() {
         figma.ui.resize(380, 200);
         figma.ui.show();
     }
-    figma.ui.onmessage = message => {
+    figma.ui.onmessage = (message) => __awaiter(this, void 0, void 0, function* () {
         if (message.quit) {
             figma.closePlugin('Copied: ' + truncate(message.text, 100));
         }
@@ -158,9 +160,9 @@ function main() {
             figma.closePlugin('No text to paste.');
         }
         else {
-            let num = pasteFunction(figma.currentPage.selection, message.pasteTextValue);
+            let num = yield pasteFunction(figma.currentPage.selection, message.pasteTextValue);
             figma.closePlugin('Pasted text to ' + num + ' object' + ((num > 1) ? 's' : ''));
         }
-    };
+    });
 }
 init();
