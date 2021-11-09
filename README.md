@@ -34,11 +34,11 @@ I recommend setting shortcuts key for plugin commands.
 - For `Copy Text`
     - Application: Figma.app
     - Menu Title: Plugins->Copy and Paste Text->Copy Text
-    - Keyboard Shortcut: ⌥⇧⌘C (Option + Shift + Command + C)
+    - Keyboard Shortcut: ⌥⇧⌘C (Command + Control + Shift + C)
 - For `Paste Text`
     - Application: Figma.app
     - Menu Title: Plugins->Copy and Paste Text->Paste Text
-    - Keyboard Shortcut: ⌥⇧⌘C (Option + Shift + Command + V)
+    - Keyboard Shortcut: ⌥⇧⌘C (Command + Control + Shift + V)
 
 
 # Supported Object
